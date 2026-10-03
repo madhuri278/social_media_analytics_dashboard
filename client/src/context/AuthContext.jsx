@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api';
 
 export const AuthContext = createContext();
 
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
       // Set default Authorization header for Axios
-      axios.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${parsedUser.token}`;
     }
     setLoading(false);
   }, []);
@@ -23,11 +23,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null);
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { email, password });
       const userData = response.data;
       setUser(userData);
       localStorage.setItem('social_dashboard_user', JSON.stringify(userData));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
       return userData;
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please check credentials.';
@@ -39,11 +39,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     setError(null);
     try {
-      const response = await axios.post('/api/auth/register', { name, email, password });
+      const response = await api.post('/api/auth/register', { name, email, password });
       const userData = response.data;
       setUser(userData);
       localStorage.setItem('social_dashboard_user', JSON.stringify(userData));
-      axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
+      api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
       return userData;
     } catch (err) {
       const msg = err.response?.data?.message || 'Registration failed. Try again.';
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('social_dashboard_user');
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
   };
 
   return (

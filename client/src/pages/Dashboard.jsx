@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
+import api from '../api';
 import { AuthContext } from '../context/AuthContext';
 import DashboardLayout from '../components/DashboardLayout';
 import MetricCard from '../components/MetricCard';
@@ -36,9 +36,9 @@ export default function Dashboard() {
     try {
       // Execute parallel requests to backend API
       const [overviewRes, chartsRes, postsRes] = await Promise.all([
-        axios.get('/api/analytics/overview'),
-        axios.get('/api/analytics/charts'),
-        axios.get('/api/posts')
+        api.get('/api/analytics/overview'),
+        api.get('/api/analytics/charts'),
+        api.get('/api/posts')
       ]);
 
       setOverview(overviewRes.data.metrics);
@@ -65,7 +65,7 @@ export default function Dashboard() {
   // Create post handler
   const handleCreatePost = async (postPayload) => {
     try {
-      const res = await axios.post('/api/posts', postPayload);
+      const res = await api.post('/api/posts', postPayload);
       setPosts([res.data, ...posts]);
       // Silently refresh analytics overview to update the "Total Posts" count
       fetchData(true);
@@ -77,7 +77,7 @@ export default function Dashboard() {
   // Update post handler
   const handleUpdatePost = async (postId, postPayload) => {
     try {
-      const res = await axios.put(`/api/posts/${postId}`, postPayload);
+      const res = await api.put(`/api/posts/${postId}`, postPayload);
       setPosts(posts.map(p => p._id === postId ? res.data : p));
       // Refresh analytics in background
       fetchData(true);
@@ -90,7 +90,7 @@ export default function Dashboard() {
   const handleDeletePost = async (postId) => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
     try {
-      await axios.delete(`/api/posts/${postId}`);
+      await api.delete(`/api/posts/${postId}`);
       setPosts(posts.filter(p => p._id !== postId));
       // Refresh analytics in background
       fetchData(true);
